@@ -170,7 +170,7 @@ class ServiceNowAdapter extends EventEmitter {
     } else {
         if (result && result.body){
            var data= JSON.parse(result.body);
-           let returnData = new Array();
+           let changeTickets = new Array();
            for (var i in data.result) {
             var rawData = data.result[i];
             var filteredResult = Object.keys(rawData).reduce((object, key) => {
@@ -185,11 +185,13 @@ class ServiceNowAdapter extends EventEmitter {
                 }
                 return object
                 }, {});
-                returnData[i] = filteredResult;
+                changeTickets[i] = filteredResult;
             }
+            log.info("General Return Data from GET call ->  " + JSON.stringify(changeTickets[0]));
             if (callback){
-                callback.responseData = returnData;
+                callback.responseData = changeTickets;
             }
+            log.info("General Return Data from GET call callback.responseData ->  " + JSON.stringify(callback.responseData));
          }
         log.debug("ServiceNow: For GET call, adaptor instance has no issues for Id: " + this.id + " with result: "+  JSON.stringify(result));
     }
@@ -222,7 +224,7 @@ class ServiceNowAdapter extends EventEmitter {
         if (result && result.body){
             var data= JSON.parse(result.body) ;
             var rawData = data.result;
-            var returnData = Object.keys(rawData).reduce((object, key) => {
+            var changeTicket = Object.keys(rawData).reduce((object, key) => {
                 if (key == "number" ||key == "active" ||key == "priority" ||key == "description" ||key == "work_start"  ||key == "work_end"  ||key == "sys_id"  ) {
                     if (key == "number" ){
                         object['change_ticket_number'] = rawData[key]
@@ -234,9 +236,11 @@ class ServiceNowAdapter extends EventEmitter {
                 }
                 return object
                 }, {});
+            log.info("General Return Data from POST call ->  " + JSON.stringify(changeTicket));
             if (callback){
-                callback.responseData = returnData;
+                callback.responseData = changeTicket;
             }
+            log.info("General Return Data from POST call callback.responseData ->  " + JSON.stringify(callback.responseData));
          }
         log.debug("ServiceNow: For GET call, adaptor instance has no issues for Id: " + this.id + " with result: "+  JSON.stringify(result));
     }
