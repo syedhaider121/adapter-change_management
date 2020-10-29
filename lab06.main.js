@@ -116,6 +116,7 @@ class ServiceNowAdapter extends EventEmitter {
         * for the callback's errorMessage parameter.
         */
         this.emitOffline();
+        callback.errorMessage = error;
         log.error("ServiceNow: Instance has issue for Id: " + this.id + " with error: "+  error);
     } else {
         /**
@@ -129,7 +130,8 @@ class ServiceNowAdapter extends EventEmitter {
         * responseData parameter.
         */
         this.emitOnline();
-        log.info("ServiceNow: Instance has no issues for Id: " + this.id + " with result: "+  JSON.stringify(result));
+        callback.responseData = result;
+        log.debug("ServiceNow: Instance has no issues for Id: " + this.id + " with result: "+  JSON.stringify(result));
     }
     });
   }
@@ -187,40 +189,7 @@ class ServiceNowAdapter extends EventEmitter {
      * Note how the object was instantiated in the constructor().
      * get() takes a callback function.
      */
-
-    this.connector.get((result, error) => {
-     if (error) {
-         if (callback){
-             callback.errorMessage = error;
-         }
-        log.error("ServiceNow: For GET call, adaptor instance has issue for Id: " + this.id + " with error: "+  error);
-    } else {
-        if (result && result.body){
-           var data= JSON.parse(result.body);
-           let returnData = new Array();
-           for (var i in data.result) {
-            var rawData = data.result[i];
-            var filteredResult = Object.keys(rawData).reduce((object, key) => {
-                if (key == "number" ||key == "active" ||key == "priority" ||key == "description" ||key == "work_start"  ||key == "work_end"  ||key == "sys_id"  ) {
-                    if (key == "number" ){
-                        object['change_ticket_number'] = rawData[key]
-                    }else if (key == "sys_id"){
-                        object['change_ticket_key'] = rawData[key]
-                    }else {
-                        object[key] = rawData[key];
-                    }
-                }
-                return object
-                }, {});
-                returnData[i] = filteredResult;
-            }
-            if (callback){
-                callback.responseData = returnData;
-            }
-         }
-        log.debug("ServiceNow: For GET call, adaptor instance has no issues for Id: " + this.id + " with result: "+  JSON.stringify(result));
-    }
-    });
+     this.connector.get(callback);
   }
 
   /**
@@ -239,35 +208,7 @@ class ServiceNowAdapter extends EventEmitter {
      * Note how the object was instantiated in the constructor().
      * post() takes a callback function.
      */
-     this.connector.post((result, error) => {
-     if (error) {
-         if (callback){
-             callback.errorMessage = error;
-         }
-        log.error("ServiceNow: For GET call, adaptor instance has issue for Id: " + this.id + " with error: "+  error);
-     } else {
-        if (result && result.body){
-            var data= JSON.parse(result.body) ;
-            var rawData = data.result;
-            var returnData = Object.keys(rawData).reduce((object, key) => {
-                if (key == "number" ||key == "active" ||key == "priority" ||key == "description" ||key == "work_start"  ||key == "work_end"  ||key == "sys_id"  ) {
-                    if (key == "number" ){
-                        object['change_ticket_number'] = rawData[key]
-                    }else if (key == "sys_id"){
-                        object['change_ticket_key'] = rawData[key]
-                    }else {
-                        object[key] = rawData[key];
-                    }
-                }
-                return object
-                }, {});
-            if (callback){
-                callback.responseData = returnData;
-            }
-         }
-        log.debug("ServiceNow: For GET call, adaptor instance has no issues for Id: " + this.id + " with result: "+  JSON.stringify(result));
-    }
-    });
+     this.connector.post(callback);
   }
 }
 
