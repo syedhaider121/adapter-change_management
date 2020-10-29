@@ -77,10 +77,11 @@ class ServiceNowAdapter extends EventEmitter {
    *   There is no need for parameters because all connection details
    *   were passed to the object's constructor and assigned to object property this.props.
    */
-  connect() {
+  connect(callback) {
     // As a best practice, Itential recommends isolating the health check action
     // in its own method.
-    this.healthcheck();
+
+    this.healthcheck(callback);
   }
 
   /**
@@ -115,7 +116,8 @@ class ServiceNowAdapter extends EventEmitter {
         * for the callback's errorMessage parameter.
         */
         this.emitOffline();
-        log.error("ServiceNow: Instance has issue for Id: " + this.id);
+        callback.errorMessage = error;
+        log.error("ServiceNow: Instance has issue for Id: " + this.id + " with error: "+  error);
     } else {
         /**
         * Write this block.
@@ -128,7 +130,8 @@ class ServiceNowAdapter extends EventEmitter {
         * responseData parameter.
         */
         this.emitOnline();
-        log.debug("ServiceNow: Instance has no issues for Id: " + this.id);
+        callback.responseData = result;
+        log.debug("ServiceNow: Instance has no issues for Id: " + this.id + " with result: "+  JSON.stringify(result));
     }
     });
   }
