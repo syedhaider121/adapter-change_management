@@ -162,12 +162,14 @@ class ServiceNowAdapter extends EventEmitter {
      */
 
     this.connector.get((result, error) => {
-     if (error) {
+      log.error("ServiceNow: For GET call, adaptor instance has issue for Id: " + this.id + " with error: "+  error);
+
+      if (error) {
          if (callback){
              callback.errorMessage = error;
          }
-        log.error("ServiceNow: For GET call, adaptor instance has issue for Id: " + this.id + " with error: "+  error);
-    } else {
+     } else {
+        log.debug("ServiceNow: For GET call, adaptor instance has no issues for Id: " + this.id + " with result: "+  JSON.stringify(result));
         if (result && result.body){
            var data= JSON.parse(result.body);
            let changeTickets = new Array();
@@ -187,14 +189,13 @@ class ServiceNowAdapter extends EventEmitter {
                 }, {});
                 changeTickets[i] = filteredResult;
             }
-            log.info("General Return Data from GET call ->  " + JSON.stringify(changeTickets[0]));
             if (callback){
                 callback.responseData = changeTickets;
             }
             log.info("General Return Data from GET call callback.responseData ->  " + JSON.stringify(callback.responseData));
          }
-        log.debug("ServiceNow: For GET call, adaptor instance has no issues for Id: " + this.id + " with result: "+  JSON.stringify(result));
-    }
+     }
+     return callback(callback.responseData, callback.errorMessage);
     });
   }
 
@@ -215,12 +216,13 @@ class ServiceNowAdapter extends EventEmitter {
      * post() takes a callback function.
      */
      this.connector.post((result, error) => {
-     if (error) {
+      log.error("ServiceNow: For GET call, adaptor instance has issue for Id: " + this.id + " with error: "+  error);
+      if (error) {
          if (callback){
              callback.errorMessage = error;
          }
-        log.error("ServiceNow: For GET call, adaptor instance has issue for Id: " + this.id + " with error: "+  error);
-     } else {
+      } else {
+        log.debug("ServiceNow: For GET call, adaptor instance has no issues for Id: " + this.id + " with result: "+  JSON.stringify(result));
         if (result && result.body){
             var data= JSON.parse(result.body) ;
             var rawData = data.result;
@@ -236,14 +238,13 @@ class ServiceNowAdapter extends EventEmitter {
                 }
                 return object
                 }, {});
-            log.info("General Return Data from POST call ->  " + JSON.stringify(changeTicket));
             if (callback){
                 callback.responseData = changeTicket;
             }
-            log.info("General Return Data from POST call callback.responseData ->  " + JSON.stringify(callback.responseData));
+            log.info("General Return Data from POST call ->  " + JSON.stringify(callback.responseData));
          }
-        log.debug("ServiceNow: For GET call, adaptor instance has no issues for Id: " + this.id + " with result: "+  JSON.stringify(result));
-    }
+     }
+     return callback(callback.responseData, callback.errorMessage);
     });
   }
 }
